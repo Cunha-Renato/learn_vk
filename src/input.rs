@@ -60,22 +60,17 @@ impl Input {
         &self.mouse_position
     }
 
-    pub fn set_key_state(&mut self, key_code: Option<VirtualKeyCode>, state: ElementState) {
-        let mut key = VirtualKeyCode::A;
-        if let Some(k) = key_code {
-            key = k;
-        } else { return }
-
+    pub fn set_key_state(&mut self, key_code: VirtualKeyCode, state: ElementState) {
         let value = self.key_states
             .iter()
             .enumerate()
             .find(|(_, k)| {
-                k.code == key
+                k.code == key_code
             });
 
         match value {
             Some((i, _)) => self.key_states[i].state = state,
-            None => self.key_states.push(Key { code: key, state }),
+            None => self.key_states.push(Key { code: key_code, state }),
         }
     }
     pub fn in_key_pressed(&self, key: VirtualKeyCode) -> bool {

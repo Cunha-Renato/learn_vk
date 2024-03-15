@@ -411,30 +411,27 @@ impl App {
         self.instance.destroy_instance(None);
     }
 
+    // Callbacks
+    pub fn mouse_scrolled_callback(&mut self, x: f32, y: f32) {
+        self.camera.mouse_scrolled_callback(x, y);
+    }
+
     // PRIVATE
     unsafe fn update_uniform_buffer(&self, image_index: usize) -> Result<(), MyError>
     {
         let time = self.start.elapsed().as_secs_f32();
 
-        let model = glm::Mat4::identity();
-        /* let model = glm::rotate(
+        let model = glm::rotate(
             &glm::Mat4::identity(), 
-            vmm::to_radians(90.0) as f32 * time, 
-            &glm::vec3(0.0, 0.0, 1.0)
-        ) 
-        * glm::translate(&glm::Mat4::identity(), &glm::vec3(0.0, 0.0, 1.0)); */
- 
-        // let view = glm::Mat4::identity();
-        let view = glm::look_at_rh(
-            &glm::vec3(2.0, 2.0, 2.0), 
-            &glm::vec3(0.0, 0.0, 0.0),
-            &glm::vec3(0.0, 0.0, 1.0)
+            vmm::to_degrees(90.0) as f32, 
+            &glm::vec3(0.0, 1.0, 1.0)
         );
-        // let view = self.camera.get_view_projection();
+
+        let view = self.camera.get_view_matrix();
 
         let proj = self.camera.get_projection_matrix();
 
-        let ubo = UniformBufferObject { model, view, proj };
+        let ubo = UniformBufferObject { model, view: view.clone(), proj };
 
         // Copy
 
@@ -1088,7 +1085,7 @@ unsafe fn create_texture_image(
     data: &mut AppData
 ) -> Result<(), MyError>
 {
-    let image = image::io::Reader::open("C:/users/renat/personal/learn_vk/assets/textures/viking_room.png")?.decode()?;
+    let image = image::io::Reader::open("C:/users/renat/personal/learn_vk/learn_vk/assets/textures/viking_room.png")?.decode()?;
     
     let width = image.width();
     let height = image.height();
@@ -1905,7 +1902,7 @@ unsafe fn transition_image_layout(
 }
 
 fn load_model(data: &mut AppData) -> Result<(), MyError> {
-    let mut reader = BufReader::new(File::open("C:/users/renat/personal/learn_vk/assets/objects/viking_room.obj")?);
+    let mut reader = BufReader::new(File::open("C:/users/renat/personal/learn_vk/learn_vk/assets/objects/viking_room.obj")?);
 
     let (models, _) = tobj::load_obj_buf(
         &mut reader,

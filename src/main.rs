@@ -6,11 +6,11 @@
 
 use std::env;
 
-use learn_vk::input::Input;
 use learn_vk::{application::App, window::get_event_loop};
 use learn_vk::MyError;
 
 use sllog::info;
+use winit::event::MouseScrollDelta;
 use winit::{
     dpi::LogicalSize,
     event::{
@@ -58,14 +58,21 @@ fn main() -> Result<(), MyError> {
                         }
                     },
                     WindowEvent::KeyboardInput { device_id, input, is_synthetic } => {
-                        app.input.set_key_state(input.virtual_keycode, input.state);
+                        if let Some(key_code) = input.virtual_keycode {
+                            app.input.set_key_state(key_code, input.state);
+                        }
                     },
                     WindowEvent::MouseInput { device_id, state, button, modifiers } => {
                         app.input.set_mouse_state(button, state);
                     },
                     WindowEvent::CursorMoved { device_id, position, modifiers } => {
                         app.input.set_mouse_position(position.x as f32, position.y as f32);
-                    }
+                    },
+                    WindowEvent::MouseWheel { device_id, delta, phase, modifiers } => {
+                        if let MouseScrollDelta::LineDelta(x, y) = delta {
+                            app.mouse_scrolled_callback(x, y);
+                        }
+                    },
                     _ => {}
                 }
             }

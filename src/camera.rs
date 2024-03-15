@@ -1,5 +1,6 @@
 use nalgebra_glm as glm;
 use sllog::*;
+use vmm::SinCosTan;
 
 use crate::input::Input;
 
@@ -140,14 +141,13 @@ impl Camera {
         self.position = self.calculate_position();
         
         let orientation = self.get_orientation();
-        let rotation = glm::quat_to_mat4(&orientation);
-
-        let translation = glm::translate(
+        self.view_matrix = glm::translate(
             &glm::Mat4::identity(), 
             &-self.position
-        );
-
-        self.view_matrix = rotation * translation;
+        )
+        * glm::quat_to_mat4(&orientation);
+        
+        self.view_matrix = glm::inverse(&self.view_matrix);
     }
 
     fn mouse_pan(&mut self, delta: &glm::Vec2) {
@@ -173,6 +173,12 @@ impl Camera {
         }
     }
     
+    pub fn mouse_scrolled_callback(&mut self, x: f32, y: f32) {
+        let delta = y * 0.1;
+        
+        self.mouse_zoom(delta);
+    }
+    
     fn calculate_position(&self) -> glm::Vec3 {
         self.focal_point - self.get_forward_direction() * self.distance
     }
@@ -196,5 +202,4 @@ impl Camera {
         
         speed
     }
-
 }
