@@ -1,14 +1,10 @@
+use std::collections::HashMap;
+
 use winit::event::{
     ElementState, VirtualKeyCode,
     MouseButton
 };
 use nalgebra_glm as glm;
-
-#[derive(Debug, Clone, Copy)]
-pub struct Key {
-    pub code: VirtualKeyCode,
-    pub state: ElementState,
-}
 
 #[derive(Debug, Clone, Copy)]
 pub struct MouseBtn {
@@ -18,14 +14,14 @@ pub struct MouseBtn {
 
 #[derive(Debug, Clone)]
 pub struct Input {
-    key_states: Vec<Key>,    
+    key_states: HashMap<VirtualKeyCode, ElementState>,    
     mouse_states: Vec<MouseBtn>,
     mouse_position: glm::Vec2,
 }
 impl Input {
     pub fn new() -> Self {
         Self { 
-            key_states: Vec::new(),
+            key_states: HashMap::new(),
             mouse_states: Vec::new(),
             mouse_position: glm::vec2(0.0, 0.0),
         }
@@ -61,28 +57,12 @@ impl Input {
     }
 
     pub fn set_key_state(&mut self, key_code: VirtualKeyCode, state: ElementState) {
-        let value = self.key_states
-            .iter()
-            .enumerate()
-            .find(|(_, k)| {
-                k.code == key_code
-            });
-
-        match value {
-            Some((i, _)) => self.key_states[i].state = state,
-            None => self.key_states.push(Key { code: key_code, state }),
-        }
+        self.key_states.insert(key_code, state);
     }
-    pub fn in_key_pressed(&self, key: VirtualKeyCode) -> bool {
-        if let Some(value) = self.key_states
-            .iter()
-            .find(|k| {
-                k.code == key
-            }) 
-        {
-            return value.state == ElementState::Pressed;
-        }
+    pub fn is_key_pressed(&self, key: VirtualKeyCode) -> bool {
+        let state = self.key_states.get(&key)
+            .unwrap_or_else(|| &ElementState::Released);
         
-        false
+        *state == ElementState::Pressed
     }
 }

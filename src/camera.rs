@@ -110,7 +110,7 @@ impl Camera {
     }
     
     pub fn on_update(&mut self, input: &Input) {
-        if input.in_key_pressed(winit::event::VirtualKeyCode::LAlt)
+        if input.is_key_pressed(winit::event::VirtualKeyCode::LAlt)
         {
             let mouse = input.get_mouse_position();
             let delta = (mouse - self.initial_mouse_position) * 0.003;
